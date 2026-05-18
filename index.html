@@ -5,845 +5,1024 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulateur Financement — Sator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grappa:wght@400;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{
             --navy:#1a2e4a;--blue:#2563eb;--lblue:#dbeafe;
-            --gold:#c9a84c;--gray:#f8fafc;--text:#1e293b;
-            --muted:#64748b;--border:#e2e8f0;--green:#10b981;
+            --gold:#c9a84c;--gray:#f8fafc;--text:#e2e8f0;
+            --muted:#94a3b8;--border:#334155;--green:#10b981;
+            --bg:#05171C;
         }
-        body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#f0f4ff,#fafafa);min-height:100vh;color:var(--text)}
-        
+        body{
+            font-family:'Archivo', sans-serif;
+            background:var(--bg);
+            min-height:100vh;
+            color:var(--text);
+            font-size:16px;
+            line-height:1.6;
+        }
+
         /* HEADER */
-        header{background:var(--navy);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(0,0,0,.15)}
-        .logo{display:flex;align-items:center;gap:12px}
-        .logo-icon{width:40px;height:40px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:var(--navy)}
-        .logo-name{color:#fff;font-size:22px;font-weight:700;letter-spacing:2px}
-        .logo-sub{color:var(--gold);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;display:block}
-        .header-btn{background:var(--gold);color:var(--navy);border:none;padding:10px 20px;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer;transition:.2s}
-        .header-btn:hover{background:#e0b85a}
+        header{
+            background:var(--navy);
+            padding:16px 40px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            box-shadow:0 2px 20px rgba(0,0,0,.3);
+            position:relative;
+            z-index:100;
+        }
+        .logo{
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+        .logo-icon{
+            width:40px;
+            height:40px;
+            background:var(--gold);
+            border-radius:8px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:800;
+            font-size:18px;
+            color:var(--navy);
+        }
+        .logo-name{
+            color:#fff;
+            font-family:'Grappa', serif;
+            font-size:22px;
+            font-weight:700;
+            letter-spacing:2px;
+        }
+        .logo-sub{
+            color:var(--gold);
+            font-size:11px;
+            letter-spacing:1.5px;
+            text-transform:uppercase;
+            display:block;
+        }
+        .header-btn{
+            background:var(--gold);
+            color:var(--navy);
+            border:none;
+            padding:10px 20px;
+            border-radius:6px;
+            font-weight:700;
+            font-size:14px;
+            cursor:pointer;
+            transition:.2s;
+        }
+        .header-btn:hover{
+            background:#b99534;
+            transform:translateY(-2px);
+        }
 
-        /* HERO */
-        .hero{text-align:center;padding:50px 20px 28px}
-        .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--lblue);color:var(--blue);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:18px}
-        .hero h1{font-size:clamp(24px,4vw,38px);font-weight:800;color:var(--navy);margin-bottom:12px;line-height:1.2}
-        .hero h1 span{color:var(--blue)}
-        .hero p{font-size:15px;color:var(--muted);max-width:520px;margin:0 auto;line-height:1.6}
-
-        /* PROGRESS */
-        .prog-wrap{max-width:660px;margin:28px auto 14px;padding:0 20px}
-        .prog-head{display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px}
-        .prog-head .lbl{color:var(--muted)}
-        .prog-head .pct{color:var(--blue);font-weight:700}
-        .prog-bar{height:6px;background:var(--border);border-radius:10px;overflow:hidden}
-        .prog-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--blue));border-radius:10px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+        /* MAIN CONTAINER */
+        .container{
+            max-width:800px;
+            margin:0 auto;
+            padding:40px 20px;
+        }
 
         /* STEPPER */
-        .stepper{display:flex;justify-content:center;gap:5px;margin-bottom:22px;flex-wrap:wrap}
-        .s-item{display:flex;align-items:center;gap:5px}
-        .s-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);background:#fff;transition:.3s}
-        .s-dot.active{border-color:var(--blue);background:var(--blue);color:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
-        .s-dot.done{border-color:var(--green);background:var(--green);color:#fff}
-        .s-line{width:22px;height:2px;background:var(--border);transition:background .3s}
-        .s-line.done{background:var(--green)}
+        .stepper{
+            display:flex;
+            justify-content:space-between;
+            margin-bottom:30px;
+            position:relative;
+        }
+        .s-item{
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            position:relative;
+        }
+        .s-dot{
+            width:28px;
+            height:28px;
+            border-radius:50%;
+            background:#334155;
+            color:#94a3b8;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            font-size:14px;
+            z-index:2;
+            position:relative;
+        }
+        .s-dot.active{
+            background:var(--gold);
+            color:var(--navy);
+        }
+        .s-line{
+            position:absolute;
+            top:14px;
+            left:0;
+            right:0;
+            height:2px;
+            background:#334155;
+            z-index:1;
+        }
+        .s-item:last-child .s-line{
+            display:none;
+        }
 
-        /* CARD */
-        .card{max-width:660px;margin:0 auto 20px;background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,.08);padding:42px;position:relative;overflow:hidden}
-        .card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--navy),var(--blue),var(--gold))}
-        .step{display:none;animation:fs .4s ease}
-        .step.active{display:block}
-        @keyframes fs{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
-        .s-icon{width:50px;height:50px;background:var(--lblue);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px}
-        .step h2{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:7px}
-        .step .sub{font-size:14px;color:var(--muted);margin-bottom:26px;line-height:1.5}
+        /* STEPS */
+        .step{
+            display:none;
+            background:#0a2e38;
+            border-radius:16px;
+            padding:30px;
+            box-shadow:0 10px 30px rgba(0,0,0,.3);
+        }
+        .step.active{
+            display:block;
+        }
 
         /* OPTIONS */
-        .opts{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:26px}
-        .opts.col1{grid-template-columns:1fr}
-        .opt{display:flex;align-items:center;gap:12px;padding:15px 17px;border:2px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;transition:.2s;text-align:left;font-size:14px;font-weight:600;color:var(--text)}
-        .opt:hover{border-color:var(--blue);background:#f0f6ff;transform:translateY(-2px);box-shadow:0 4px 14px rgba(37,99,235,.1)}
-        .opt.sel{border-color:var(--blue);background:var(--lblue);color:var(--blue)}
-        .opt-ic{font-size:26px;flex-shrink:0}
-        .opt-tx strong{font-size:14px;display:block}
-        .opt-tx span{font-size:12px;color:var(--muted);font-weight:400}
-        .opt.sel .opt-tx span{color:#60a5fa}
+        .opts{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:11px;
+            margin-bottom:26px;
+        }
+        .opts.col1{
+            grid-template-columns:1fr;
+        }
+        .opt{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:15px 17px;
+            border:2px solid var(--border);
+            border-radius:12px;
+            background:#0a2e38;
+            cursor:pointer;
+            transition:.2s;
+            text-align:left;
+            font-size:14px;
+            font-weight:600;
+            color:var(--text);
+        }
+        .opt:hover{
+            border-color:var(--blue);
+            background:#164e63;
+            transform:translateY(-2px);
+            box-shadow:0 4px 14px rgba(37,99,235,.2);
+        }
+        .opt.sel{
+            border-color:var(--blue);
+            background:#164e63;
+            color:var(--text);
+        }
+        .opt-ic{
+            font-size:26px;
+            flex-shrink:0;
+        }
+        .opt-tx strong{
+            font-size:14px;
+            display:block;
+            font-family:'Grappa', serif;
+        }
+        .opt-tx span{
+            font-size:12px;
+            color:var(--muted);
+            font-weight:400;
+        }
+        .opt.sel .opt-tx span{
+            color:#60a5fa;
+        }
 
         /* SLIDERS */
-        .sl-group{margin-bottom:24px}
-        .sl-lbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
-        .sl-lbl label{font-size:14px;font-weight:600}
-        .sl-val{background:var(--navy);color:#fff;padding:4px 13px;border-radius:20px;font-size:13px;font-weight:700}
-        input[type=range]{width:100%;height:6px;border-radius:10px;background:var(--border);outline:none;cursor:pointer;-webkit-appearance:none}
-        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--blue);cursor:pointer;box-shadow:0 2px 8px rgba(37,99,235,.4)}
+        .sl-group{
+            margin-bottom:24px;
+        }
+        .sl-lbl{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:9px;
+        }
+        .sl-lbl label{
+            font-size:14px;
+            font-weight:600;
+        }
+        .sl-val{
+            background:var(--navy);
+            color:#fff;
+            padding:4px 13px;
+            border-radius:20px;
+            font-size:13px;
+            font-weight:700;
+        }
+        input[type=range]{
+            width:100%;
+            height:6px;
+            border-radius:10px;
+            background:var(--border);
+            outline:none;
+            cursor:pointer;
+            -webkit-appearance:none;
+        }
+        input[type=range]::-webkit-slider-thumb{
+            -webkit-appearance:none;
+            width:20px;
+            height:20px;
+            border-radius:50%;
+            background:var(--blue);
+            cursor:pointer;
+            box-shadow:0 2px 8px rgba(37,99,235,.4);
+        }
 
         /* FORM */
-        .frow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-        .fg{margin-bottom:16px}
-        .fg label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
-        .fg input,.fg select{width:100%;padding:11px 13px;border:2px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;background:#fff}
-        .fg input:focus,.fg select:focus{border-color:var(--blue)}
-        .fg input.ok{border-color:var(--green)}
-
-        /* CONSENT */
-        .consent{background:var(--gray);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-bottom:18px}
-        .c-row{display:flex;gap:9px;align-items:flex-start;margin-bottom:7px}
-        .c-row:last-child{margin-bottom:0}
-        .c-row input[type=checkbox]{margin-top:2px;width:16px;height:16px;cursor:pointer;accent-color:var(--blue);flex-shrink:0}
-        .c-row label{font-size:12px;color:var(--muted);line-height:1.5;cursor:pointer}
-        .c-row label a{color:var(--blue);text-decoration:underline}
-
-        /* HubSpot status */
-        .hs-msg{padding:9px 15px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px;display:none;align-items:center;gap:7px}
-        .hs-msg.ok{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;display:flex}
-        .hs-msg.err{background:#fff1f2;color:#be123c;border:1px solid #fecdd3;display:flex}
-        .hs-msg.wait{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;display:flex}
-
-        /* BUTTONS */
-        .nav{display:flex;gap:11px;justify-content:space-between;align-items:center;margin-top:8px}
-        .btn-back{background:transparent;border:2px solid var(--border);color:var(--muted);padding:11px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
-        .btn-back:hover{border-color:var(--text);color:var(--text)}
-        .btn-next{background:var(--blue);border:none;color:#fff;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;margin-left:auto;display:flex;align-items:center;gap:7px}
-        .btn-next:hover{background:#1d4ed8;transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.3)}
-        .btn-next:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none;box-shadow:none}
-
-        /* LOADING */
-        .ld{text-align:center;padding:46px 20px}
-        .spinner{width:50px;height:50px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .ld-steps{display:flex;flex-direction:column;gap:9px;margin-top:22px;max-width:300px;margin-left:auto;margin-right:auto}
-        .ld-item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted)}
-        .ld-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s}
-        .ld-item.go .ld-dot{background:var(--blue);animation:pulse 1s ease infinite}
-        .ld-item.ok .ld-dot{background:var(--green)}
-        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+        .form-group{
+            margin-bottom:20px;
+        }
+        .form-group label{
+            display:block;
+            margin-bottom:8px;
+            font-weight:600;
+        }
+        .form-group input{
+            width:100%;
+            padding:12px;
+            border:2px solid var(--border);
+            border-radius:8px;
+            background:#0a2e38;
+            color:var(--text);
+            font-family:'Archivo', sans-serif;
+        }
+        .form-group input.ok{
+            border-color:var(--green);
+        }
+        .form-group input:focus{
+            outline:none;
+            border-color:var(--blue);
+        }
+        .form-group .checkbox-group{
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        .form-group .checkbox-group input{
+            width:auto;
+            margin:0;
+        }
+        .form-group .checkbox-group label{
+            margin-bottom:0;
+            font-weight:400;
+        }
 
         /* RESULTS */
-        .res-header{background:linear-gradient(135deg,var(--navy),#1e40af);border-radius:14px;padding:28px;color:#fff;margin-bottom:22px;text-align:center}
-        .res-header h3{font-size:18px;font-weight:800;margin-bottom:5px}
-        .score{font-size:54px;font-weight:900;color:var(--gold);margin:8px 0 3px}
-        .score-lbl{font-size:13px;opacity:.75}
-        .f-list{display:flex;flex-direction:column;gap:11px;margin-bottom:20px}
-        .fi{display:flex;align-items:center;gap:13px;padding:15px 17px;border-radius:12px;border:2px solid transparent}
-        .fi.g{background:#f0fdf4;border-color:#bbf7d0}
-        .fi.b{background:#eff6ff;border-color:#bfdbfe}
-        .fi.y{background:#fffbeb;border-color:#fde68a}
-        .fi.x{background:var(--gray);border-color:var(--border);opacity:.6}
-        .fi-ic{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-        .fi.g .fi-ic{background:#dcfce7}
-        .fi.b .fi-ic{background:#dbeafe}
-        .fi.y .fi-ic{background:#fef3c7}
-        .fi.x .fi-ic{background:#e2e8f0}
-        .fi-info{flex:1}
-        .fi-info h4{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
-        .fi-info p{font-size:12px;color:var(--muted);line-height:1.4}
-        .fi-badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap}
-        .bg{background:#dcfce7;color:#16a34a}
-        .bb{background:#dbeafe;color:#1d4ed8}
-        .by{background:#fef3c7;color:#d97706}
-        .bx{background:#f1f5f9;color:#94a3b8}
+        .res-header{
+            background:linear-gradient(135deg,var(--navy),#1e40af);
+            border-radius:14px;
+            padding:28px;
+            color:#fff;
+            margin-bottom:22px;
+            text-align:center;
+        }
+        .res-header h3{
+            font-family:'Grappa', serif;
+            font-size:18px;
+            font-weight:800;
+            margin-bottom:5px;
+        }
+        .score{
+            font-family:'Grappa', serif;
+            font-size:54px;
+            font-weight:900;
+            color:var(--gold);
+            margin:8px 0 3px;
+        }
+        .score-lbl{
+            font-size:13px;
+            opacity:.75;
+        }
+        .f-list{
+            display:flex;
+            flex-direction:column;
+            gap:11px;
+            margin-bottom:20px;
+        }
+        .fi{
+            display:flex;
+            align-items:center;
+            gap:13px;
+            padding:15px 17px;
+            border-radius:12px;
+            border:2px solid transparent;
+        }
+        .fi.g{
+            background:#0d2419;
+            border-color:#059669;
+        }
+        .fi.b{
+            background:#0f2440;
+            border-color:#2563eb;
+        }
+        .fi.y{
+            background:#312e1a;
+            border-color:#d97706;
+        }
+        .fi.x{
+            background:#0a2e38;
+            border-color:var(--border);
+            opacity:.6;
+        }
+        .fi-ic{
+            width:40px;
+            height:40px;
+            border-radius:9px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:18px;
+            flex-shrink:0;
+        }
+        .fi.g .fi-ic{
+            background:#059669;
+        }
+        .fi.b .fi-ic{
+            background:#2563eb;
+        }
+        .fi.y .fi-ic{
+            background:#d97706;
+        }
+        .fi.x .fi-ic{
+            background:#334155;
+        }
+        .fi-info{
+            flex:1;
+        }
+        .fi-info h4{
+            font-size:14px;
+            font-weight:700;
+            color:var(--text);
+            margin-bottom:2px;
+            font-family:'Grappa', serif;
+        }
+        .fi-info p{
+            font-size:12px;
+            color:var(--muted);
+            line-height:1.4;
+        }
+        .fi-badge{
+            font-size:11px;
+            font-weight:700;
+            padding:4px 9px;
+            border-radius:20px;
+            white-space:nowrap;
+        }
+        .bg{
+            background:#059669;
+            color:#bbf7d0;
+        }
+        .bb{
+            background:#2563eb;
+            color:#bfdbfe;
+        }
+        .by{
+            background:#d97706;
+            color:#fde68a;
+        }
+        .bx{
+            background:#334155;
+            color:#94a3b8;
+        }
 
         /* DISCLAIMER */
-        .disc{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 15px;font-size:12px;color:#92400e;line-height:1.5;margin-bottom:20px;display:flex;gap:7px}
+        .disc{
+            background:#312e1a;
+            border:1px solid #d97706;
+            border-radius:10px;
+            padding:12px 15px;
+            font-size:12px;
+            color:#fde68a;
+            line-height:1.5;
+            margin-bottom:20px;
+            display:flex;
+            gap:7px;
+        }
 
         /* CTA FINAL */
-        .cta-box{background:linear-gradient(135deg,#f0f6ff,#fafbff);border:2px solid var(--lblue);border-radius:14px;padding:24px;text-align:center}
-        .cta-box h3{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:5px}
-        .cta-box p{font-size:13px;color:var(--muted);margin-bottom:16px}
-        .cta-btns{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
-        .btn-p{background:var(--navy);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:7px}
-        .btn-p:hover{background:#243b55;transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,46,74,.25)}
-        .btn-pdf{background:#dc2626;color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:7px}
-        .btn-pdf:hover:not(:disabled){background:#b91c1c;transform:translateY(-2px);box-shadow:0 6px 20px rgba(220,38,38,.3)}
-        .btn-pdf:disabled{background:#f87171;cursor:not-allowed}
-        .btn-s{background:#fff;color:var(--navy);border:2px solid var(--navy);padding:12px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:7px}
-        .btn-s:hover{background:var(--gray)}
-        .btn-r{background:transparent;color:var(--muted);border:none;font-size:13px;cursor:pointer;text-decoration:underline;display:block;margin:13px auto 0}
+        .cta-box{
+            background:linear-gradient(135deg,#0a2e38,#05171C);
+            border:2px solid var(--lblue);
+            border-radius:14px;
+            padding:24px;
+            text-align:center;
+        }
+        .cta-box h3{
+            font-family:'Grappa', serif;
+            font-size:17px;
+            font-weight:800;
+            color:var(--text);
+            margin-bottom:5px;
+        }
+        .cta-box p{
+            font-size:13px;
+            color:var(--muted);
+            margin-bottom:16px;
+        }
+        .cta-btns{
+            display:flex;
+            gap:9px;
+            justify-content:center;
+            flex-wrap:wrap;
+        }
+        .btn-p{
+            background:var(--navy);
+            color:#fff;
+            border:none;
+            padding:12px 22px;
+            border-radius:10px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:.2s;
+            display:flex;
+            align-items:center;
+            gap:7px;
+        }
+        .btn-p:hover{
+            background:#243b55;
+            transform:translateY(-2px);
+            box-shadow:0 6px 20px rgba(26,46,74,.25);
+        }
+        .btn-pdf{
+            background:#dc2626;
+            color:#fff;
+            border:none;
+            padding:12px 22px;
+            border-radius:10px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:.2s;
+            display:flex;
+            align-items:center;
+            gap:7px;
+        }
+        .btn-pdf:hover:not(:disabled){
+            background:#b91c1c;
+            transform:translateY(-2px);
+            box-shadow:0 6px 20px rgba(220,38,38,.3);
+        }
+        .btn-pdf:disabled{
+            background:#f87171;
+            cursor:not-allowed;
+        }
+        .btn-s{
+            background:#fff;
+            color:var(--navy);
+            border:2px solid var(--navy);
+            padding:12px 22px;
+            border-radius:10px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:.2s;
+            display:flex;
+            align-items:center;
+            gap:7px;
+        }
+        .btn-s:hover{
+            background:var(--gray);
+        }
+        .btn-r{
+            background:transparent;
+            color:var(--muted);
+            border:none;
+            font-size:13px;
+            cursor:pointer;
+            text-decoration:underline;
+            display:block;
+            margin:13px auto 0;
+        }
 
-        /* TRUST */
-        .trust{max-width:660px;margin:0 auto 40px;padding:0 20px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
-        .ti{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+        /* NAV BUTTONS */
+        .nav{
+            display:flex;
+            justify-content:space-between;
+            margin-top:30px;
+        }
+        .btn-back{
+            background:var(--navy);
+            color:#fff;
+            border:none;
+            padding:12px 24px;
+            border-radius:10px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:.2s;
+        }
+        .btn-back:hover{
+            background:#243b55;
+            transform:translateY(-2px);
+        }
+        .btn-next{
+            background:#2563eb;
+            color:#fff;
+            border:none;
+            padding:12px 24px;
+            border-radius:10px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:.2s;
+        }
+        .btn-next:hover:not(:disabled){
+            background:#1d4ed8;
+            transform:translateY(-2px);
+        }
+        .btn-next:disabled{
+            background:#60a5fa;
+            cursor:not-allowed;
+        }
 
-        @media(max-width:580px){
-            .card{padding:26px 20px;margin:0 12px 20px}
-            .opts,.frow{grid-template-columns:1fr}
-            header{padding:13px 18px}
-            .cta-btns{flex-direction:column}
+        /* TRUST BADGES */
+        .trust{
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:20px;
+            margin-top:40px;
+            padding:20px;
+        }
+        .ti{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            color:var(--muted);
+            font-size:12px;
+        }
+        .ti::before{
+            font-size:16px;
+        }
+
+        /* LOADING */
+        .ld{
+            text-align:center;
+            padding:40px;
+        }
+        .spinner{
+            width:50px;
+            height:50px;
+            border:4px solid #334155;
+            border-top-color:var(--gold);
+            border-radius:50%;
+            margin:0 auto 20px;
+            animation:spin 1s linear infinite;
+        }
+        @keyframes spin{
+            to{transform:rotate(360deg);}
+        }
+        .ld-steps{
+            display:flex;
+            flex-direction:column;
+            gap:15px;
+            margin-top:30px;
+            text-align:left;
+        }
+        .ld-item{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            color:var(--muted);
+            font-size:14px;
+        }
+        .ld-item.go{
+            color:var(--text);
+        }
+        .ld-dot{
+            width:12px;
+            height:12px;
+            border-radius:50%;
+            background:#334155;
+        }
+        .ld-item.go .ld-dot{
+            background:var(--gold);
         }
     </style>
 </head>
 <body>
-
-<header>
-    <div class="logo">
-        <div class="logo-icon">S</div>
-        <div>
-            <div class="logo-name">SATOR</div>
-            <span class="logo-sub">Formation professionnelle</span>
-        </div>
-    </div>
-    <button class="header-btn" onclick="window.open('https://www.sator.fr/professionnels','_blank')">📞 Contacter un expert</button>
-</header>
-
-<div class="hero">
-    <div class="hero-badge">⚡ Simulation gratuite · 2 minutes</div>
-    <h1>Trouvez le <span>financement idéal</span><br>pour votre formation</h1>
-    <p>Identifiez en quelques clics les dispositifs adaptés à votre profil et obtenez une synthèse personnalisée.</p>
-</div>
-
-<div class="prog-wrap" id="progWrap">
-    <div class="prog-head">
-        <span class="lbl" id="progLbl">Étape 1 sur 6</span>
-        <span class="pct" id="progPct">17%</span>
-    </div>
-    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:17%"></div></div>
-</div>
-
-<div class="stepper" id="stepperEl">
-    <div class="s-item"><div class="s-dot active" id="d1">1</div><div class="s-line" id="l1"></div></div>
-    <div class="s-item"><div class="s-dot" id="d2">2</div><div class="s-line" id="l2"></div></div>
-    <div class="s-item"><div class="s-dot" id="d3">3</div><div class="s-line" id="l3"></div></div>
-    <div class="s-item"><div class="s-dot" id="d4">4</div><div class="s-line" id="l4"></div></div>
-    <div class="s-item"><div class="s-dot" id="d5">5</div><div class="s-line" id="l5"></div></div>
-    <div class="s-item"><div class="s-dot" id="d6">6</div></div>
-</div>
-
-<div class="card" id="card">
-
-    <!-- STEP 1 -->
-    <div class="step active" id="s1">
-        <div class="s-icon">👤</div>
-        <h2>Quel est votre profil ?</h2>
-        <p class="sub">Cette information détermine les dispositifs de financement auxquels vous avez accès.</p>
-        <div class="opts">
-            <button class="opt" onclick="pick(this,'profil','salarie')">
-                <span class="opt-ic">💼</span>
-                <div class="opt-tx"><strong>Salarié(e)</strong><span>En poste dans une entreprise</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'profil','dirigeant')">
-                <span class="opt-ic">👔</span>
-                <div class="opt-tx"><strong>Dirigeant / TNS</strong><span>Chef d'entreprise, freelance</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'profil','demandeur')">
-                <span class="opt-ic">🔍</span>
-                <div class="opt-tx"><strong>Demandeur d'emploi</strong><span>Inscrit à France Travail</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'profil','rh')">
-                <span class="opt-ic">🏢</span>
-                <div class="opt-tx"><strong>RH / Responsable formation</strong><span>Je finance plusieurs collaborateurs</span></div>
-            </button>
-        </div>
-        <div class="nav">
-            <button class="btn-next" id="n1" disabled onclick="go(2)">Continuer →</button>
-        </div>
-    </div>
-
-    <!-- STEP 2 -->
-    <div class="step" id="s2">
-        <div class="s-icon">⚖️</div>
-        <h2>Quel domaine vous intéresse ?</h2>
-        <p class="sub">Sator est spécialisé dans les formations juridiques et réglementaires.</p>
-        <div class="opts">
-            <button class="opt" onclick="pick(this,'secteur','droit_affaires')">
-                <span class="opt-ic">📋</span>
-                <div class="opt-tx"><strong>Droit des affaires</strong><span>Contrats, sociétés, contentieux</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'secteur','droit_social')">
-                <span class="opt-ic">👥</span>
-                <div class="opt-tx"><strong>Droit social & RH</strong><span>Paie, relations collectives</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'secteur','immobilier')">
-                <span class="opt-ic">🏠</span>
-                <div class="opt-tx"><strong>Loi Alur / Immobilier</strong><span>Obligatoire tous les 3 ans</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'secteur','assurance')">
-                <span class="opt-ic">🛡️</span>
-                <div class="opt-tx"><strong>DDA / Assurance</strong><span>Formation réglementaire IDD</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'secteur','rgpd')">
-                <span class="opt-ic">🔒</span>
-                <div class="opt-tx"><strong>Conformité & RGPD</strong><span>Protection des données</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'secteur','autre')">
-                <span class="opt-ic">🎯</span>
-                <div class="opt-tx"><strong>Autre domaine</strong><span>Conseil personnalisé</span></div>
-            </button>
-        </div>
-        <div class="nav">
-            <button class="btn-back" onclick="go(1)">← Retour</button>
-            <button class="btn-next" id="n2" disabled onclick="go(3)">Continuer →</button>
-        </div>
-    </div>
-
-    <!-- STEP 3 -->
-    <div class="step" id="s3">
-        <div class="s-icon">🏢</div>
-        <h2>Taille de votre structure</h2>
-        <p class="sub">Elle conditionne l'OPCO de rattachement et les plafonds de prise en charge.</p>
-        <div class="opts col1">
-            <button class="opt" onclick="pick(this,'taille','independant')">
-                <span class="opt-ic">🧑‍💻</span>
-                <div class="opt-tx"><strong>Indépendant / Sans salarié</strong><span>Auto-entrepreneur, profession libérale</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'taille','tpe')">
-                <span class="opt-ic">🏪</span>
-                <div class="opt-tx"><strong>TPE — moins de 10 salariés</strong><span>Financement prioritaire OPCO</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'taille','pme')">
-                <span class="opt-ic">🏭</span>
-                <div class="opt-tx"><strong>PME — 10 à 249 salariés</strong><span>Plan de formation + OPCO</span></div>
-            </button>
-            <button class="opt" onclick="pick(this,'taille','eti')">
-                <span class="opt-ic">🏛️</span>
-                <div class="opt-tx"><strong>ETI / Grande entreprise</strong><span>250 salariés et plus</span></div>
-            </button>
-        </div>
-        <div class="nav">
-            <button class="btn-back" onclick="go(2)">← Retour</button>
-            <button class="btn-next" id="n3" disabled onclick="go(4)">Continuer →</button>
-        </div>
-    </div>
-
-    <!-- STEP 4 -->
-    <div class="step" id="s4">
-        <div class="s-icon">💶</div>
-        <h2>Votre projet de formation</h2>
-        <p class="sub">Ces informations nous permettent d'affiner l'estimation du financement disponible.</p>
-        <div class="sl-group">
-            <div class="sl-lbl">
-                <label>Budget envisagé</label>
-                <span class="sl-val" id="budgetVal">1 500 €</span>
-            </div>
-            <input type="range" min="300" max="10000" step="100" value="1500" oninput="updBudget(this)">
-        </div>
-        <div class="sl-group">
-            <div class="sl-lbl">
-                <label>Nombre de participants</label>
-                <span class="sl-val" id="partVal">1 personne</span>
-            </div>
-            <input type="range" min="1" max="20" step="1" value="1" oninput="updPart(this)">
-        </div>
-        <div class="sl-group">
-            <div class="sl-lbl">
-                <label>Durée souhaitée</label>
-                <span class="sl-val" id="dureeVal">2 jours</span>
-            </div>
-            <input type="range" min="1" max="10" step="1" value="2" oninput="updDuree(this)">
-        </div>
-        <div class="nav">
-            <button class="btn-back" onclick="go(3)">← Retour</button>
-            <button class="btn-next" onclick="go(5)">Voir les financements →</button>
-        </div>
-    </div>
-
-    <!-- STEP 5 : CONTACT + HUBSPOT -->
-    <div class="step" id="s5">
-        <div class="s-icon">📋</div>
-        <h2>Recevez votre simulation</h2>
-        <p class="sub">Vos résultats sont prêts ! Renseignez vos coordonnées pour les recevoir et être accompagné par un expert Sator.</p>
-        <div id="hsMsg" class="hs-msg"></div>
-        <div class="frow">
-            <div class="fg">
-                <label>Prénom *</label>
-                <input type="text" id="prenom" placeholder="Marie" oninput="checkForm()">
-            </div>
-            <div class="fg">
-                <label>Nom *</label>
-                <input type="text" id="nom" placeholder="Dupont" oninput="checkForm()">
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">S</div>
+            <div>
+                <div class="logo-name">SATOR</div>
+                <div class="logo-sub">FINANCEMENT</div>
             </div>
         </div>
-        <div class="fg">
-            <label>Email professionnel *</label>
-            <input type="email" id="email" placeholder="marie.dupont@entreprise.fr" oninput="checkForm()">
+        <button class="header-btn">📞 Contactez-nous</button>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- STEPPER -->
+        <div class="stepper" id="stepperEl">
+            <div class="s-item"><div class="s-dot active" id="d1">1</div><div class="s-line" id="l1"></div></div>
+            <div class="s-item"><div class="s-dot" id="d2">2</div><div class="s-line" id="l2"></div></div>
+            <div class="s-item"><div class="s-dot" id="d3">3</div><div class="s-line" id="l3"></div></div>
+            <div class="s-item"><div class="s-dot" id="d4">4</div><div class="s-line" id="l4"></div></div>
+            <div class="s-item"><div class="s-dot" id="d5">5</div><div class="s-line" id="l5"></div></div>
+            <div class="s-item"><div class="s-dot" id="d6">6</div></div>
         </div>
-        <div class="frow">
-            <div class="fg">
-                <label>Téléphone *</label>
+
+        <!-- STEP 1 : PROFIL -->
+        <div class="step active" id="s1">
+            <h2>Quel est votre profil ?</h2>
+            <div class="opts col1">
+                <button class="opt" onclick="pick(this,'profil','salarie')">
+                    <span class="opt-ic">👤</span>
+                    <div class="opt-tx"><strong>Salarié(e)</strong><span>Formation continue</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'profil','dirigeant')">
+                    <span class="opt-ic">👔</span>
+                    <div class="opt-tx"><strong>Dirigeant / TNS</strong><span>Formation professionnelle</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'profil','demandeur')">
+                    <span class="opt-ic">🎯</span>
+                    <div class="opt-tx"><strong>Demandeur d'emploi</strong><span>Reconversion professionnelle</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'profil','rh')">
+                    <span class="opt-ic">👥</span>
+                    <div class="opt-tx"><strong>RH / Responsable formation</strong><span>Formation des équipes</span></div>
+                </button>
+            </div>
+            <div class="nav">
+                <button class="btn-next" onclick="go(2)">Continuer →</button>
+            </div>
+        </div>
+
+        <!-- STEP 2 : SECTEUR -->
+        <div class="step" id="s2">
+            <h2>Quel est votre secteur d'activité ?</h2>
+            <div class="opts">
+                <button class="opt" onclick="pick(this,'secteur','droit_affaires')">
+                    <span class="opt-ic">⚖️</span>
+                    <div class="opt-tx"><strong>Droit des affaires</strong><span>Conseil juridique et fiscal</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'secteur','droit_social')">
+                    <span class="opt-ic">📋</span>
+                    <div class="opt-tx"><strong>Droit social & RH</strong><span>Gestion du personnel</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'secteur','immobilier')">
+                    <span class="opt-ic">🏠</span>
+                    <div class="opt-tx"><strong>Loi Alur / Immobilier</strong><span>Formation réglementaire</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'secteur','assurance')">
+                    <span class="opt-ic">🛡️</span>
+                    <div class="opt-tx"><strong>DDA / Assurance</strong><span>Conformité réglementaire</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'secteur','rgpd')">
+                    <span class="opt-ic">🔒</span>
+                    <div class="opt-tx"><strong>Conformité & RGPD</strong><span>Protection des données</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'secteur','autre')">
+                    <span class="opt-ic">🎯</span>
+                    <div class="opt-tx"><strong>Autre domaine</strong><span>Conseil personnalisé</span></div>
+                </button>
+            </div>
+            <div class="nav">
+                <button class="btn-back" onclick="go(1)">← Retour</button>
+                <button class="btn-next" id="n2" disabled onclick="go(3)">Continuer →</button>
+            </div>
+        </div>
+
+        <!-- STEP 3 : TAILLE ENTREPRISE -->
+        <div class="step" id="s3">
+            <h2>Quelle est la taille de votre entreprise ?</h2>
+            <div class="opts col1">
+                <button class="opt" onclick="pick(this,'taille','independant')">
+                    <span class="opt-ic">👤</span>
+                    <div class="opt-tx"><strong>Indépendant</strong><span>Auto-entrepreneur ou freelance</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'taille','tpe')">
+                    <span class="opt-ic">🏢</span>
+                    <div class="opt-tx"><strong>TPE &lt; 10 sal.</strong><span>Très petite entreprise</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'taille','pme')">
+                    <span class="opt-ic">🏢</span>
+                    <div class="opt-tx"><strong>PME 10-249 sal.</strong><span>Petite et moyenne entreprise</span></div>
+                </button>
+                <button class="opt" onclick="pick(this,'taille','eti')">
+                    <span class="opt-ic">🏢</span>
+                    <div class="opt-tx"><strong>ETI / Grande entreprise</strong><span>Plus de 250 salariés</span></div>
+                </button>
+            </div>
+            <div class="nav">
+                <button class="btn-back" onclick="go(2)">← Retour</button>
+                <button class="btn-next" id="n3" disabled onclick="go(4)">Continuer →</button>
+            </div>
+        </div>
+
+        <!-- STEP 4 : BUDGET -->
+        <div class="step" id="s4">
+            <h2>Quel est votre budget formation ?</h2>
+            <div class="sl-group">
+                <div class="sl-lbl">
+                    <label>Budget</label>
+                    <span class="sl-val" id="budgetVal">1 500 €</span>
+                </div>
+                <input type="range" min="500" max="10000" step="100" value="1500" oninput="updBudget(this)">
+            </div>
+            <div class="sl-group">
+                <div class="sl-lbl">
+                    <label>Nombre de personnes</label>
+                    <span class="sl-val" id="partVal">1 personne</span>
+                </div>
+                <input type="range" min="1" max="10" value="1" oninput="updPart(this)">
+            </div>
+            <div class="sl-group">
+                <div class="sl-lbl">
+                    <label>Durée estimée (jours)</label>
+                    <span class="sl-val" id="dureeVal">2 jours</span>
+                </div>
+                <input type="range" min="1" max="30" value="2" oninput="updDuree(this)">
+            </div>
+            <div class="nav">
+                <button class="btn-back" onclick="go(3)">← Retour</button>
+                <button class="btn-next" id="n4" disabled onclick="go(5)">Continuer →</button>
+            </div>
+        </div>
+
+        <!-- STEP 5 : INFOS PERSONNELLES -->
+        <div class="step" id="s5">
+            <h2>Vos informations personnelles</h2>
+            <div class="form-group">
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" placeholder="Votre prénom" oninput="checkForm()">
+            </div>
+            <div class="form-group">
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" placeholder="Votre nom" oninput="checkForm()">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="votre@email.com" oninput="checkForm()">
+            </div>
+            <div class="form-group">
+                <label for="tel">Téléphone</label>
                 <input type="tel" id="tel" placeholder="06 12 34 56 78" oninput="checkForm()">
             </div>
-            <div class="fg">
-                <label>Entreprise</label>
-                <input type="text" id="entreprise" placeholder="Nom de votre société">
+            <div class="form-group">
+                <label for="entreprise">Nom de l'entreprise (si applicable)</label>
+                <input type="text" id="entreprise" placeholder="Nom de votre entreprise">
             </div>
-        </div>
-        <div class="fg">
-            <label>Poste occupé</label>
-            <input type="text" id="poste" placeholder="Responsable formation, DRH...">
-        </div>
-        <div class="consent">
-            <div class="c-row">
+            <div class="form-group">
+                <label for="poste">Poste / Fonction</label>
+                <input type="text" id="poste" placeholder="Votre poste">
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="marketing" checked>
+                <label for="marketing">J'accepte de recevoir des informations sur les offres Sator.</label>
+            </div>
+            <div class="form-group checkbox-group">
                 <input type="checkbox" id="cgv" onchange="checkForm()">
-                <label for="cgv">J'accepte d'être recontacté(e) par Sator dans le cadre de ma recherche de financement. <a href="https://www.sator.fr" target="_blank">Politique de confidentialité</a> *</label>
+                <label for="cgv">J'accepte les conditions générales</label>
             </div>
-            <div class="c-row">
-                <input type="checkbox" id="marketing">
-                <label for="marketing">J'accepte de recevoir des informations sur les formations et offres Sator (optionnel)</label>
+            <div class="nav">
+                <button class="btn-back" onclick="go(4)">← Retour</button>
+                <button class="btn-next" id="n5" disabled onclick="submitForm()">Valider →</button>
             </div>
         </div>
-        <div class="nav">
-            <button class="btn-back" onclick="go(4)">← Retour</button>
-            <button class="btn-next" id="n5" disabled onclick="submitForm()">Voir mes résultats 🎉</button>
+
+        <!-- LOADING -->
+        <div class="step" id="sLoad">
+            <div class="ld">
+                <div class="spinner"></div>
+                <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:7px">Analyse en cours...</div>
+                <div style="font-size:14px;color:var(--muted)">Identification des dispositifs adaptés à votre profil</div>
+                <div class="ld-steps">
+                    <div class="ld-item go" id="ld1"><div class="ld-dot"></div>Vérification du profil</div>
+                    <div class="ld-item" id="ld2"><div class="ld-dot"></div>Analyse CPF · OPCO · FAF</div>
+                    <div class="ld-item" id="ld3"><div class="ld-dot"></div>Calcul du taux de prise en charge</div>
+                    <div class="ld-item" id="ld4"><div class="ld-dot"></div>Transmission à l'équipe Sator</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 6 : RÉSULTATS -->
+        <div class="step" id="s6">
+            <div class="res-header">
+                <div style="font-size:28px;margin-bottom:7px">🎉</div>
+                <h3>Bonne nouvelle, <span id="prenomRes">vous</span> !</h3>
+                <div class="score" id="scoreRes">85%</div>
+                <div class="score-lbl">de votre formation potentiellement finançable</div>
+                <p style="margin-top:9px;font-size:13px;opacity:.8">Synthèse envoyée à <span id="emailRes" style="color:var(--gold);font-weight:700"></span></p>
+            </div>
+            <div class="f-list" id="fList"></div>
+            <div class="disc">
+                <span>⚠️</span>
+                <span>Cette simulation est indicative et ne constitue pas un engagement des organismes financeurs ni de Sator. Un conseiller validera votre éligibilité définitive.</span>
+            </div>
+            <div id="hsMsg2" class="hs-msg"></div>
+            <div class="cta-box">
+                <h3>Prochaine étape</h3>
+                <p>Un expert Sator vous rappelle sous 24h pour finaliser votre dossier de financement.</p>
+                <div class="cta-btns">
+                    <button class="btn-p" onclick="bookCall()">📞 Être rappelé</button>
+                    <button class="btn-pdf" id="btnPDF" onclick="makePDF()">📄 Télécharger PDF</button>
+                    <button class="btn-s" onclick="sendMail()">📧 Recevoir par email</button>
+                </div>
+                <button class="btn-r" onclick="restart()">🔄 Recommencer</button>
+            </div>
         </div>
     </div>
 
-    <!-- LOADING -->
-    <div class="step" id="sLoad">
-        <div class="ld">
-            <div class="spinner"></div>
-            <div style="font-size:17px;font-weight:800;color:var(--navy);margin-bottom:7px">Analyse en cours...</div>
-            <div style="font-size:14px;color:var(--muted)">Identification des dispositifs adaptés à votre profil</div>
-            <div class="ld-steps">
-                <div class="ld-item go" id="ld1"><div class="ld-dot"></div>Vérification du profil</div>
-                <div class="ld-item" id="ld2"><div class="ld-dot"></div>Analyse CPF · OPCO · FAF</div>
-                <div class="ld-item" id="ld3"><div class="ld-dot"></div>Calcul du taux de prise en charge</div>
-                <div class="ld-item" id="ld4"><div class="ld-dot"></div>Transmission à l'équipe Sator</div>
-            </div>
-        </div>
+    <!-- TRUST BADGES -->
+    <div class="trust">
+        <div class="ti">🔒 Données RGPD sécurisées</div>
+        <div class="ti">✅ Certifié Qualiopi</div>
+        <div class="ti">⚡ Réponse sous 24h</div>
     </div>
 
-    <!-- STEP 6 : RÉSULTATS -->
-    <div class="step" id="s6">
-        <div class="res-header">
-            <div style="font-size:28px;margin-bottom:7px">🎉</div>
-            <h3>Bonne nouvelle, <span id="prenomRes">vous</span> !</h3>
-            <div class="score" id="scoreRes">85%</div>
-            <div class="score-lbl">de votre formation potentiellement finançable</div>
-            <p style="margin-top:9px;font-size:13px;opacity:.8">Synthèse envoyée à <span id="emailRes" style="color:var(--gold);font-weight:700"></span></p>
-        </div>
-        <div class="f-list" id="fList"></div>
-        <div class="disc">
-            <span>⚠️</span>
-            <span>Cette simulation est indicative et ne constitue pas un engagement des organismes financeurs ni de Sator. Un conseiller validera votre éligibilité définitive.</span>
-        </div>
-        <div id="hsMsg2" class="hs-msg"></div>
-        <div class="cta-box">
-            <h3>Prochaine étape</h3>
-            <p>Un expert Sator vous rappelle sous 24h pour finaliser votre dossier de financement.</p>
-            <div class="cta-btns">
-                <button class="btn-p" onclick="bookCall()">📞 Être rappelé</button>
-                <button class="btn-pdf" id="btnPDF" onclick="makePDF()">📄 Télécharger PDF</button>
-                <button class="btn-s" onclick="sendMail()">📧 Recevoir par email</button>
-            </div>
-            <button class="btn-r" onclick="restart()">🔄 Recommencer</button>
-        </div>
-    </div>
-
-</div><!-- /card -->
-
-<div class="trust">
-    <div class="ti">🔒 Données RGPD sécurisées</div>
-    <div class="ti">✅ Certifié Qualiopi</div>
-    <div class="ti">⚡ Réponse sous 24h</div>
-    <div class="ti">🎓 +15 ans d'expertise</div>
-    <div class="ti">🤝 Accompagnement dossier offert</div>
-</div>
-
-<script>
-// ─────────────────────────────────────────
-// CONFIG HUBSPOT — remplacer avant déploiement
-// ─────────────────────────────────────────
-const HS = {
-    portalId: "VOTRE_PORTAL_ID",
-    formId:   "VOTRE_FORM_GUID",
-    api: "https://api.hsforms.com/submissions/v3/integration/submit"
-};
-
-// ─────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────
-const ST = {
-    profil:null, secteur:null, taille:null,
-    budget:1500, part:1, duree:2,
-    cur:1, score:0,
-    prenom:'', nom:'', email:'', tel:'', entreprise:'', poste:''
-};
-
-// ─────────────────────────────────────────
-// NAVIGATION
-// ─────────────────────────────────────────
-function go(n){
-    document.getElementById('s'+ST.cur).classList.remove('active');
-    ST.cur = n;
-    document.getElementById('s'+n).classList.add('active');
-    updProgress(n); updStepper(n);
-    window.scrollTo({top:0,behavior:'smooth'});
-}
-
-// ─────────────────────────────────────────
-// OPTION PICKER
-// ─────────────────────────────────────────
-function pick(btn, key, val){
-    btn.closest('.step').querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
-    btn.classList.add('sel');
-    ST[key] = val;
-    const nb = document.getElementById('n'+ST.cur);
-    if(nb) nb.disabled = false;
-}
-
-// ─────────────────────────────────────────
-// SLIDERS
-// ─────────────────────────────────────────
-function updBudget(el){
-    ST.budget = +el.value;
-    document.getElementById('budgetVal').textContent = (+el.value).toLocaleString('fr-FR')+' €';
-}
-function updPart(el){
-    ST.part = +el.value;
-    const v = +el.value;
-    document.getElementById('partVal').textContent = v+(v>1?' personnes':' personne');
-}
-function updDuree(el){
-    ST.duree = +el.value;
-    const v = +el.value;
-    document.getElementById('dureeVal').textContent = v+(v>1?' jours':' jour');
-}
-
-// ─────────────────────────────────────────
-// FORM VALIDATION
-// ─────────────────────────────────────────
-function checkForm(){
-    const p=document.getElementById('prenom').value.trim();
-    const n=document.getElementById('nom').value.trim();
-    const e=document.getElementById('email').value.trim();
-    const t=document.getElementById('tel').value.trim();
-    const c=document.getElementById('cgv').checked;
-    const ok = p.length>1 && n.length>1 && e.includes('@') && e.includes('.') && t.length>=8 && c;
-    document.getElementById('n5').disabled = !ok;
-    ['prenom','nom','email','tel'].forEach(id=>{
-        const el=document.getElementById(id);
-        el.classList.toggle('ok', el.value.trim().length>1);
-    });
-}
-
-// ─────────────────────────────────────────
-// HUBSPOT SUBMIT (API v3 Forms)
-// ─────────────────────────────────────────
-async function hubspotSubmit(){
-    const prenom   = document.getElementById('prenom').value.trim();
-    const nom      = document.getElementById('nom').value.trim();
-    const email    = document.getElementById('email').value.trim();
-    const tel      = document.getElementById('tel').value.trim();
-    const ent      = document.getElementById('entreprise').value.trim();
-    const poste    = document.getElementById('poste').value.trim();
-    const mktg     = document.getElementById('marketing').checked;
-
-    const PROFIL_LBL = {salarie:'Salarié(e)',dirigeant:'Dirigeant / TNS',demandeur:"Demandeur d'emploi",rh:'RH / Responsable formation'};
-    const SECT_LBL   = {droit_affaires:'Droit des affaires',droit_social:'Droit social & RH',immobilier:'Loi Alur / Immobilier',assurance:'DDA / Assurance',rgpd:'Conformité & RGPD',autre:'Autre domaine'};
-    const TAIL_LBL   = {independant:'Indépendant',tpe:'TPE < 10 sal.',pme:'PME 10-249 sal.',eti:'ETI / Grande entreprise'};
-
-    const payload = {
-        submittedAt: Date.now(),
-        fields:[
-            {objectTypeId:"0-1", name:"firstname",  value: prenom},
-            {objectTypeId:"0-1", name:"lastname",   value: nom},
-            {objectTypeId:"0-1", name:"email",      value: email},
-            {objectTypeId:"0-1", name:"phone",      value: tel},
-            {objectTypeId:"0-1", name:"company",    value: ent},
-            {objectTypeId:"0-1", name:"jobtitle",   value: poste},
-            // Propriétés personnalisées à créer dans HubSpot CRM
-            {objectTypeId:"0-1", name:"sator_profil",    value: PROFIL_LBL[ST.profil]||ST.profil},
-            {objectTypeId:"0-1", name:"sator_secteur",   value: SECT_LBL[ST.secteur]||ST.secteur},
-            {objectTypeId:"0-1", name:"sator_taille",    value: TAIL_LBL[ST.taille]||ST.taille},
-            {objectTypeId:"0-1", name:"sator_budget",    value: ST.budget.toString()},
-            {objectTypeId:"0-1", name:"sator_participants", value: ST.part.toString()},
-            {objectTypeId:"0-1", name:"sator_score",     value: ST.score.toString()+'%'},
-            {objectTypeId:"0-1", name:"lead_source",     value:"Simulateur financement Sator"}
-        ],
-        legalConsentOptions:{
-            consent:{
-                consentToProcess: true,
-                text:"J'accepte d'être recontacté(e) par Sator concernant mes besoins en formation.",
-                communications:[{
-                    value: mktg,
-                    subscriptionTypeId: 999,
-                    text:"J'accepte de recevoir des informations sur les offres Sator."
-                }]
-            }
-        },
-        context:{ pageUri: window.location.href, pageName:"Simulateur Financement Sator" }
-    };
-
-    // Vérifie si portal ID configuré (mode démo sinon)
-    if(HS.portalId === 'VOTRE_PORTAL_ID'){
-        console.log('📋 Mode démo — données qui seraient envoyées à HubSpot :', payload);
-        return {success:true, demo:true};
-    }
-
-    try{
-        const r = await fetch(`${HS.api}/${HS.portalId}/${HS.formId}`,{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify(payload)
-        });
-        return r.ok ? {success:true} : {success:false};
-    }catch(e){
-        console.error('HubSpot error:',e);
-        return {success:false};
-    }
-}
-
-// ─────────────────────────────────────────
-// SUBMIT FORM → LOADING → RESULTS
-// ─────────────────────────────────────────
-async function submitForm(){
-    ST.prenom = document.getElementById('prenom').value.trim();
-    ST.email  = document.getElementById('email').value.trim();
-    document.getElementById('n5').disabled = true;
-
-    // Basculer sur loading
-    document.getElementById('s5').classList.remove('active');
-    document.getElementById('sLoad').classList.add('active');
-    document.getElementById('progWrap').style.display = 'none';
-    document.getElementById('stepperEl').style.display = 'none';
-
-    // Animer les étapes de loading
-    const delays = [500,1100,1800,2400];
-    delays.forEach((d,i)=>{
-        setTimeout(()=>{
-            for(let j=1;j<=4;j++) document.getElementById('ld'+j).classList.remove('go');
-            document.getElementById('ld'+(i+1)).classList.add('ok');
-            if(i<3) document.getElementById('ld'+(i+2)).classList.add('go');
-        },d);
-    });
-
-    // HubSpot en parallèle
-    const hs = await hubspotSubmit();
-    await new Promise(r=>setTimeout(r,3000));
-
-    // Masquer loading, afficher résultats
-    document.getElementById('sLoad').classList.remove('active');
-    document.getElementById('progWrap').style.display = 'block';
-    document.getElementById('stepperEl').style.display = 'flex';
-
-    // Afficher statut HubSpot
-    const msg2 = document.getElementById('hsMsg2');
-    if(hs.demo){
-        msg2.className='hs-msg wait';
-        msg2.innerHTML='⚙️ Mode démo — configurez votre Portal ID HubSpot pour activer la synchronisation CRM.';
-    } else if(hs.success){
-        msg2.className='hs-msg ok';
-        msg2.innerHTML='✅ Vos informations ont bien été transmises à l\'équipe Sator.';
-    } else {
-        msg2.className='hs-msg err';
-        msg2.innerHTML='⚠️ Transmission partielle — un conseiller vous contactera manuellement.';
-    }
-
-    buildResults();
-}
-
-// ─────────────────────────────────────────
-// BUILD RESULTS
-// ─────────────────────────────────────────
-function buildResults(){
-    ST.cur = 6;
-    document.getElementById('prenomRes').textContent = ST.prenom || 'vous';
-    document.getElementById('emailRes').textContent  = ST.email;
-
-    const {profil, taille, budget} = ST;
-    let score = 70;
-    let items = [];
-
-    if(profil==='salarie'){
-        score = (taille==='tpe'||taille==='pme') ? 88 : 80;
-        items=[
-            {c:'g',ic:'🎓',n:'CPF — Compte Personnel de Formation',d:'Solde disponible consultable sur moncompteformation.gouv.fr. Utilisable sans accord employeur.',b:'bg',lbl:'✅ Éligible'},
-            {c:'b',ic:'🏢',n:'Plan de développement des compétences',d:"Financement employeur intégral possible selon accord de branche et OPCO de rattachement.",b:'bb',lbl:'🔵 Très probable'},
-            {c:'b',ic:'⚙️',n:'OPCO — Opérateur de Compétences',d: taille==='tpe'||taille==='pme' ? 'Priorité TPE/PME : prise en charge jusqu\'à 100% du coût pédagogique.' : 'Plafond selon convention et accord de branche.',b:'bb',lbl:'🔵 À vérifier'},
-            {c:'x',ic:'🔍',n:"France Travail / AIF",d:"Non applicable pour les salariés en poste.",b:'bx',lbl:'⛔ Non applicable'}
-        ];
-    }else if(profil==='dirigeant'){
-        score = 78;
-        items=[
-            {c:'g',ic:'👔',n:'FAF — Fonds d\'Assurance Formation',d:'AGEFICE, FIF PL, FIFPL... Votre cotisation ouvre droit à une prise en charge annuelle de 2 000 à 5 000 €.',b:'bg',lbl:'✅ Éligible'},
-            {c:'g',ic:'🎓',n:'CPF — Compte Personnel de Formation',d:'Accessible si vous avez été salarié auparavant. Consultez votre solde sur moncompteformation.gouv.fr',b:'bg',lbl:'✅ Vérifier solde'},
-            {c:'y',ic:'⚙️',n:'OPCO',d:'Si vous employez des salariés, votre OPCO finance les formations de vos collaborateurs.',b:'by',lbl:'🟡 Selon effectif'},
-            {c:'x',ic:'🔍',n:"France Travail",d:"Non applicable pour les dirigeants en activité.",b:'bx',lbl:'⛔ Non applicable'}
-        ];
-    }else if(profil==='demandeur'){
-        score = 92;
-        items=[
-            {c:'g',ic:'🔍',n:'France Travail — AIF',d:'Aide Individuelle à la Formation : prise en charge totale ou partielle. Dossier avec votre conseiller France Travail.',b:'bg',lbl:'✅ Éligible'},
-            {c:'g',ic:'🎓',n:'CPF — Compte Personnel de Formation',d:"Utilisable en demande d'emploi. Peut être abondé par France Travail pour compléter votre solde.",b:'bg',lbl:'✅ Éligible'},
-            {c:'y',ic:'🔄',n:'CPF de Transition Professionnelle',d:'Idéal pour une reconversion vers un métier juridique ou réglementaire.',b:'by',lbl:'🟡 À étudier'},
-            {c:'x',ic:'🏢',n:'Plan formation entreprise',d:'Non applicable hors emploi.',b:'bx',lbl:'⛔ Non applicable'}
-        ];
-    }else if(profil==='rh'){
-        score = 95;
-        items=[
-            {c:'g',ic:'🏢',n:'Plan de développement des compétences',d:'Principal levier RH. Budget formation 100% déductible fiscalement. Aucune limite de montant.',b:'bg',lbl:'✅ Prioritaire'},
-            {c:'g',ic:'⚙️',n:'OPCO — Financement collectif',d: taille==='tpe'||taille==='pme' ? 'Financement prioritaire TPE/PME : jusqu\'à 100% du coût pédagogique mutualisé.' : 'Versements conventionnels et fonds mutualisés selon accord de branche.',b:'bg',lbl:'✅ Éligible'},
-            {c:'b',ic:'🎓',n:'CPF — Abondement employeur',d:"Abondez le CPF de vos collaborateurs pour accélérer et faciliter l'accès à la formation.",b:'bb',lbl:'🔵 Recommandé'},
-            {c:'y',ic:'🌿',n:'FNE-Formation',d:"Disponible si l'entreprise est en mutation ou transformation technologique.",b:'by',lbl:'🟡 À vérifier'}
-        ];
-    }
-
-    score = Math.min(score + (budget>3000?3:0), 98);
-    ST.score = score;
-    document.getElementById('scoreRes').textContent = score+'%';
-
-    document.getElementById('fList').innerHTML = items.map(f=>`
-        <div class="fi ${f.c}">
-            <div class="fi-ic">${f.ic}</div>
-            <div class="fi-info"><h4>${f.n}</h4><p>${f.d}</p></div>
-            <span class="fi-badge ${f.b}">${f.lbl}</span>
-        </div>
-    `).join('');
-
-    document.getElementById('s6').classList.add('active');
-    updProgress(6); updStepper(6);
-    window.scrollTo({top:0,behavior:'smooth'});
-}
-
-// ─────────────────────────────────────────
-// PROGRESS & STEPPER
-// ─────────────────────────────────────────
-function updProgress(n){
-    const pct = Math.round((n/6)*100);
-    document.getElementById('progFill').style.width = pct+'%';
-    document.getElementById('progPct').textContent = pct+'%';
-    document.getElementById('progLbl').textContent = `Étape ${n} sur 6`;
-}
-function updStepper(cur){
-    for(let i=1;i<=6;i++){
-        const d = document.getElementById('d'+i);
-        d.classList.remove('active','done');
-        if(i<cur){d.classList.add('done');d.textContent='✓';}
-        else if(i===cur){d.classList.add('active');d.textContent=i;}
-        else d.textContent=i;
-        if(i<6){
-            const l=document.getElementById('l'+i);
-            if(l) l.classList.toggle('done',i<cur);
-        }
-    }
-}
-
-// ─────────────────────────────────────────
-// PDF EXPORT — jsPDF
-// ─────────────────────────────────────────
-async function makePDF(){
-    const btn = document.getElementById('btnPDF');
-    btn.disabled=true; btn.innerHTML='⏳ Génération...';
-
-    // Charger jsPDF si pas encore disponible
-    if(!window.jspdf){
-        await new Promise((res,rej)=>{
-            const sc=document.createElement('script');
-            sc.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-            sc.onload=res; sc.onerror=rej;
-            document.head.appendChild(sc);
-        });
-    }
-
-    try{
-        const {jsPDF} = window.jspdf;
-        const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-        const W=210, M=18, CW=W-M*2;
-        let y=0;
-
-        // Header navy
-        doc.setFillColor(26,46,74);
-        doc.rect(0,0,W,44,'F');
-        doc.setFillColor(201,168,76);
-        doc.rect(0,40,W,4,'F');
-
-        doc.setTextColor(201,168,76);
-        doc.setFontSize(24); doc.setFont('helvetica','bold');
-        doc.text('SATOR',M,17);
-        doc.setTextColor(255,255,255);
-        doc.setFontSize(10); doc.setFont('helvetica','normal');
-        doc.text('Formation Professionnelle — sator.fr',M,24);
-        doc.setFontSize(15); doc.setFont('helvetica','bold');
-        doc.text('Simulation de Financement Formation',M,34);
-
-        y=56;
-
-        // Date + référence
-        const dateStr = new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
-        doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
-        doc.text(`Généré le ${dateStr} · Réf. SIM-${Date.now().toString().slice(-6)}`,M,y);
-        y+=12;
-
-        // Bloc profil
-        doc.setFillColor(240,246,255);
-        doc.roundedRect(M,y,CW,32,3,3,'F');
-        doc.setDrawColor(219,234,254); doc.setLineWidth(0.5);
-        doc.roundedRect(M,y,CW,32,3,3,'S');
-
-        doc.setTextColor(26,46,74); doc.setFontSize(12); doc.setFont('helvetica','bold');
-        doc.text('Profil de simulation',M+6,y+9);
-
-        const PROFIL_LBL={salarie:'Salarié(e)',dirigeant:'Dirigeant / TNS',demandeur:"Demandeur d'emploi",rh:'RH / Responsable formation'};
-        const SECT_LBL={droit_affaires:'Droit des affaires',droit_social:'Droit social & RH',immobilier:'Loi Alur / Immobilier',assurance:'DDA / Assurance',rgpd:'Conformité & RGPD',autre:'Autre domaine'};
-        const TAIL_LBL={independant:'Indépendant',tpe:'TPE < 10 sal.',pme:'PME 10-249 sal.',eti:'ETI / Grande entreprise'};
-
-        doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
-        const infos = [
-            `Bénéficiaire : ${ST.prenom} ${document.getElementById('nom').value} · ${ST.email}`,
-            `Profil : ${PROFIL_LBL[ST.profil]||ST.profil}  ·  Secteur : ${SECT_LBL[ST.secteur]||ST.secteur}  ·  Structure : ${TAIL_LBL[ST.taille]||ST.taille}`,
-            `Budget envisagé : ${ST.budget.toLocaleString('fr-FR')} €  ·  Participants : ${ST.part}  ·  Durée : ${ST.duree} jour(s)`
-        ];
-        infos.forEach((l,i)=>doc.text(l,M+6,y+17+(i*5)));
-        y+=40;
-
-        // Score
-        doc.setFillColor(26,46,74);
-        doc.roundedRect(M,y,CW,28,3,3,'F');
-        doc.setTextColor(201,168,76); doc.setFontSize(26); doc.setFont('helvetica','bold');
-        doc.text(ST.score+'%',M+8,y+18);
-        doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
-        doc.text('de votre formation potentiellement finançable',M+30,y+12);
-        doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(203,213,225);
-        doc.text('Estimation basée sur votre profil — à confirmer avec un conseiller Sator',M+30,y+20);
-        y+=36;
-
-        // Financements
-        doc.setTextColor(26,46,74); doc.setFontSize(13); doc.setFont('helvetica','bold');
-        doc.text('Dispositifs de financement identifiés',M,y);
-        y+=8;
-
-        const fItems = document.querySelectorAll('#fList .fi');
-        const statusColors = {
-            'bg':[22,163,74], 'bb':[29,78,216], 'by':[217,119,6], 'bx':[148,163,184]
+    <script>
+        // STATE
+        const ST = {
+            profil: null,
+            secteur: null,
+            taille: null,
+            budget: 1500,
+            part: 1,
+            duree: 2,
+            cur: 1,
+            score: 0,
+            prenom: '',
+            nom: '',
+            email: '',
+            tel: '',
+            entreprise: '',
+            poste: ''
         };
 
-        fItems.forEach((fi)=>{
-            if(y>260){ doc.addPage(); y=20; }
-            const title = fi.querySelector('h4').textContent;
-            const desc  = fi.querySelector('p').textContent;
-            const badge = fi.querySelector('.fi-badge').textContent;
-            const badgeClass = fi.querySelector('.fi-badge').className.split(' ').find(c=>c.startsWith('b'));
-            const [r,g,b2] = statusColors[badgeClass]||[148,163,184];
+        // NAVIGATION
+        function go(n) {
+            document.getElementById('s' + ST.cur).classList.remove('active');
+            ST.cur = n;
+            document.getElementById('s' + n).classList.add('active');
+            updStepper(n);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-            doc.setFillColor(248,250,252);
-            doc.roundedRect(M,y,CW,20,2,2,'F');
-            doc.setDrawColor(226,232,240); doc.setLineWidth(0.3);
-            doc.roundedRect(M,y,CW,20,2,2,'S');
+        function updStepper(n) {
+            document.querySelectorAll('.s-dot').forEach((dot, i) => {
+                if (i + 1 === n) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
 
-            doc.setFillColor(r,g,b2);
-            doc.roundedRect(M,y,3,20,1,1,'F');
+        // OPTION PICKER
+        function pick(btn, key, val) {
+            btn.closest('.step').querySelectorAll('.opt').forEach(b => b.classList.remove('sel'));
+            btn.classList.add('sel');
+            ST[key] = val;
+            checkNavigation();
+        }
 
-            doc.setTextColor(30,41,59); doc.setFontSize(10); doc.setFont('helvetica','bold');
-            doc.text(title,M+7,y+7);
+        // SLIDERS
+        function updBudget(el) {
+            ST.budget = +el.value;
+            document.getElementById('budgetVal').textContent = (+el.value).toLocaleString('fr-FR') + ' €';
+            checkNavigation();
+        }
 
-            doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
-            const lines = doc.splitTextToSize(desc, CW-60);
-            doc.text(lines[0], M+7, y+13);
+        function updPart(el) {
+            ST.part = +el.value;
+            const v = +el.value;
+            document.getElementById('partVal').textContent = v + (v > 1 ? ' personnes' : ' personne');
+            checkNavigation();
+        }
 
-            doc.setFillColor(r,g,b2);
-            const bw = doc.getTextWidth(badge)+6;
-            doc.roundedRect(W-M-bw,y+5,bw,8,2,2,'F');
-            doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','bold');
-            doc.text(badge,W-M-bw+3,y+10.5);
+        function updDuree(el) {
+            ST.duree = +el.value;
+            const v = +el.value;
+            document.getElementById('dureeVal').textContent = v + (v > 1 ? ' jours' : ' jour');
+            checkNavigation();
+        }
 
-            y+=24;
-        });
+        // FORM VALIDATION
+        function checkForm() {
+            const prenom = document.getElementById('prenom').value.trim();
+            const nom = document.getElementById('nom').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const tel = document.getElementById('tel').value.trim();
+            const cgv = document.getElementById('cgv').checked;
 
-        y+=4;
+            const ok = prenom.length > 1 && nom.length > 1 && email.includes('@') && email.includes('.') && tel.length >= 8 && cgv;
+            document.getElementById('n5').disabled = !ok;
 
-        // Disclaimer
-        if(y>250){ doc.addPage(); y=20; }
-        doc.setFillColor(255,251,235);
-        doc.roundedRect(M,y,CW,16,2,2,'F');
-        doc.setDrawColor(253,230,138); doc.setLineWidth(0.3);
-        doc.roundedRect(M,y,CW,16,2,2,'S');
-        doc.setTextColor(146,64,14); doc.setFontSize(8); doc.setFont('helvetica','normal');
-        const
+            ['prenom', 'nom', 'email', 'tel'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.toggle('ok', el.value.trim().length > 1);
+            });
+        }
+
+        function checkNavigation() {
+            const nextBtn = document.getElementById('n' + ST.cur);
+            if (nextBtn) {
+                nextBtn.disabled = !ST[ST.cur === 2 ? 'secteur' : ST.cur === 3 ? 'taille' : false];
+            }
+        }
+
+        // FORM SUBMISSION
+        function submitForm() {
+            ST.prenom = document.getElementById('prenom').value.trim();
+            ST.nom = document.getElementById('nom').value.trim();
+            ST.email = document.getElementById('email').value.trim();
+            ST.tel = document.getElementById('tel').value.trim();
+            ST.entreprise = document.getElementById('entreprise').value.trim();
+            ST.poste = document.getElementById('poste').value.trim();
+
+            go(6);
+            buildResults();
+        }
+
+        // RESULTS BUILDER
+        function buildResults() {
+            document.getElementById('prenomRes').textContent = ST.prenom || 'vous';
+            document.getElementById('emailRes').textContent = ST.email;
+
+            const { profil, taille, budget } = ST;
+            let score = 70;
+            let items = [];
+
+            if (profil === 'salarie') {
+                score = 85;
+                items = [
+                    { c: 'g', ic: '🎓', n: 'CPF — Compte Personnel de Formation', d: "Utilisez vos droits à formation accumulés sur votre CPF.", b: 'bg', lbl: '✅ Éligible' },
+                    { c: 'b', ic: '🏢', n: 'OPCO — Opérateur de Compétences', d: "Votre OPCO peut financer tout ou partie de votre formation selon votre secteur.", b: 'bb', lbl: '🔵 Recommandé' },
+                    { c: 'y', ic: '💼', n: 'Plan de développement des compétences', d: "Votre employeur peut financer votre formation dans le cadre du plan de formation.", b: 'by', lbl: '🟡 À vérifier' }
+                ];
+            } else if (profil === 'dirigeant') {
+                score = 90;
+                items = [
+                    { c: 'g', ic: '💰', n: 'FIF PL — Fonds Interprofessionnel de Formation des Professionnels Libéraux', d: "Financement possible pour les professionnels libéraux selon votre activité.", b: 'bg', lbl: '✅ Éligible' },
+                    { c: 'b', ic: '📊', n: 'AGEFICE — Fonds d’assurance formation des chefs d’entreprise', d: "Financement des formations pour les dirigeants d'entreprise.", b: 'bb', lbl: '🔵 Recommandé' },
+                    { c: 'y', ic: '🎯', n: 'Pôle Emploi — Aide Individuelle à la Formation (AIF)', d: "Si vous êtes inscrit comme demandeur d'emploi, Pôle Emploi peut financer votre formation.", b: 'by', lbl: '🟡 À vérifier' }
+                ];
+            } else if (profil === 'demandeur') {
+                score = 80;
+                items = [
+                    { c: 'g', ic: '🎯', n: 'Pôle Emploi — Aide Individuelle à la Formation (AIF)', d: "Financement possible pour les demandeurs d'emploi en reconversion.", b: 'bg', lbl: '✅ Éligible' },
+                    { c: 'b', ic: '📚', n: 'Région — Chèque Formation', d: "Certaines régions proposent des aides pour la formation des demandeurs d'emploi.", b: 'bb', lbl: '🔵 Recommandé' },
+                    { c: 'y', ic: '🏛️', n: 'État — Pro-A', d: "Dispositif pour les demandeurs d'emploi visant une qualification ou une reconversion.", b: 'by', lbl: '🟡 À vérifier' }
+                ];
+            } else if (profil === 'rh') {
+                score = 95;
+                items = [
+                    { c: 'g', ic: '📊', n: 'OPCO — Plan de développement des compétences', d: "Financement des formations pour les salariés dans le cadre du plan de développement des compétences.", b: 'bg', lbl: '✅ Éligible' },
+                    { c: 'b', ic: '🏢', n: 'FNE-Formation', d: "Financement possible pour les entreprises en mutation ou transformation technologique.", b: 'bb', lbl: '🔵 Recommandé' },
+                    { c: 'y', ic: '📈', n: 'CPF — Abondement employeur', d: "Votre entreprise peut abonder le CPF de vos collaborateurs pour faciliter l'accès à la formation.", b: 'by', lbl: '🟡 À vérifier' }
+                ];
+            }
+
+            const fList = document.getElementById('fList');
+            fList.innerHTML = items.map(item => `
+                <div class="fi ${item.c}">
+                    <div class="fi-ic">${item.ic}</div>
+                    <div class="fi-info">
+                        <h4>${item.n}</h4>
+                        <p>${item.d}</p>
+                    </div>
+                    <div class="fi-badge ${item.b}">${item.lbl}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('scoreRes').textContent = score + '%';
+        }
+
+        // SIMULATION FUNCTIONS
+        function bookCall() {
+            alert('Un expert Sator vous contactera sous 24h pour finaliser votre dossier.');
+        }
+
+        function sendMail() {
+            alert('Un email avec votre synthèse vous sera envoyé sous peu.');
+        }
+
+        function restart() {
+            location.reload();
+        }
+
+        function makePDF() {
+            alert('Fonctionnalité PDF à implémenter.');
+        }
+    </script>
+</body>
+</html>
